@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zinkywee · Growth Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --lav:        #8366F0;
+  --lav-mid:    #A68BF5;
+  --lav-soft:   #C4B0FA;
+  --lav-pale:   #EDE8FD;
+  --lav-ghost:  #F5F2FF;
+  --yel:        #E8B929;
+  --yel-mid:    #F5D062;
+  --yel-soft:   #FBEBB6;
+  --yel-pale:   #FEF9EC;
+  --yel-ghost:  #FFFDF5;
+  --emerald:    #10A366;
+  --emerald-bg: #EDFBF5;
+  --emerald-bd: #6EDDB0;
+  --red:        #E84F4F;
+  --red-bg:     #FEF1F1;
+  --red-bd:     #F5A8A8;
+  --blue:       #4A82D4;
+  --blue-bg:    #EEF5FF;
+  --amber:      #D97D0C;
+  --amber-bg:   #FEF5E7;
+  --bg:         #F6F4FF;
+  --surface:    #FFFFFF;
+  --charcoal:   #1C1830;
+  --ink:        #2E2A45;
+  --muted:      #7B7899;
+  --faint:      #AEA9CC;
+  --border:     #E8E3F8;
+  --border-2:   #D4CCF5;
+  --sh-xs:   0 1px 3px rgba(100,80,200,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --sh-sm:   0 2px 8px rgba(100,80,200,0.08),0 1px 3px rgba(0,0,0,0.04);
+  --sh-md:   0 4px 20px rgba(100,80,200,0.10),0 2px 6px rgba(0,0,0,0.05);
+  --sh-glow: 0 0 0 3px rgba(131,102,240,0.18);
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-2xl:24px;--r-full:999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--charcoal);min-height:100vh;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* TOPBAR */
+.topbar{background:linear-gradient(135deg,#2A1F5F 0%,#4A2D8F 50%,#6344CC 100%);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(42,31,95,.35)}
+.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent)}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-orb{width:34px;height:34px;background:linear-gradient(135deg,var(--yel),var(--yel-mid));border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;color:#1C1830;box-shadow:0 2px 12px rgba(232,185,41,.4)}
+.brand-text{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:#fff;letter-spacing:-.3px}
+.brand-sub{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.live-pill{background:rgba(16,163,102,.2);border:1px solid rgba(16,163,102,.35);color:#5EDAA8;font-size:11px;font-weight:600;padding:4px 12px 4px 8px;border-radius:var(--r-full);display:flex;align-items:center;gap:5px;letter-spacing:.5px}
+.live-dot{width:6px;height:6px;background:#5EDAA8;border-radius:50%;animation:breathe 2s ease-in-out infinite}
+@keyframes breathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.sim-badge{background:linear-gradient(135deg,var(--yel),var(--yel-mid));color:var(--charcoal);font-size:11px;font-weight:700;padding:5px 14px;border-radius:var(--r-full);box-shadow:0 2px 8px rgba(232,185,41,.35)}
+
+/* LAYOUT */
+.app-layout{display:grid;grid-template-columns:292px 1fr;min-height:calc(100vh - 60px)}
+
+/* SIDEBAR */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;position:sticky;top:60px;height:calc(100vh - 60px)}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px}
+.sb-section{padding:20px 20px 16px;border-bottom:1px solid var(--border)}
+.sb-section:last-child{border-bottom:none}
+.sb-heading{font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--faint);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sb-icon{width:20px;height:20px;background:var(--lav-ghost);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
+.inp-group{margin-bottom:10px}
+.inp-label{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+.inp-wrap{position:relative;display:flex;align-items:center}
+.inp-pre{position:absolute;left:11px;font-size:13px;font-weight:600;color:var(--lav);pointer-events:none;font-family:'Outfit',sans-serif}
+.inp-suf{position:absolute;right:11px;font-size:11px;color:var(--faint);font-weight:500}
+input[type="number"]{width:100%;background:var(--lav-ghost);border:1.5px solid var(--border);border-radius:var(--r-md);padding:9px 11px 9px 26px;font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;color:var(--charcoal);outline:none;transition:border-color .2s,box-shadow .2s,background .2s;-moz-appearance:textfield}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none}
+input[type="number"]:focus{border-color:var(--lav);background:#fff;box-shadow:var(--sh-glow)}
+.no-pre input[type="number"]{padding-left:11px}
+.total-chip{background:linear-gradient(135deg,var(--lav-pale),var(--lav-ghost));border:1.5px solid var(--border-2);border-radius:var(--r-md);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.total-chip-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.total-chip-val{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--lav)}
+.target-chip{background:linear-gradient(135deg,var(--yel-pale),var(--yel-ghost));border:1.5px solid var(--yel-soft);border-radius:var(--r-md);padding:12px 14px;margin-top:10px}
+.target-chip-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--amber);margin-bottom:4px}
+.target-chip-val{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;color:var(--amber)}
+
+/* MAIN */
+.main-area{padding:24px 28px 48px;overflow-y:auto}
+.section-head{font-family:'Outfit',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--faint);margin-bottom:14px;margin-top:28px;display:flex;align-items:center;gap:10px}
+.section-head:first-child{margin-top:0}
+.section-head::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xl);padding:18px 20px 16px;position:relative;overflow:hidden;box-shadow:var(--sh-sm);transition:transform .2s,box-shadow .2s;cursor:default}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md)}
+.kpi-card::before{content:'';position:absolute;top:0;left:16px;right:16px;height:2px;border-radius:0 0 4px 4px;opacity:.7}
+.kv-lav{background:linear-gradient(145deg,#FDFCFF,var(--lav-ghost));border-color:var(--lav-pale)}
+.kv-lav::before{background:linear-gradient(90deg,var(--lav-soft),var(--lav))}
+.kv-yel{background:linear-gradient(145deg,#FFFFF8,var(--yel-ghost));border-color:var(--yel-soft)}
+.kv-yel::before{background:linear-gradient(90deg,var(--yel-mid),var(--yel))}
+.kv-grn{background:linear-gradient(145deg,#F8FFFC,var(--emerald-bg));border-color:var(--emerald-bd)}
+.kv-grn::before{background:linear-gradient(90deg,var(--emerald-bd),var(--emerald))}
+.kv-red{background:linear-gradient(145deg,#FFFAFA,var(--red-bg));border-color:var(--red-bd)}
+.kv-red::before{background:linear-gradient(90deg,var(--red-bd),var(--red))}
+.kv-neu{background:linear-gradient(145deg,#F8F7FF,#F0EEF8);border-color:var(--border)}
+.kv-neu::before{background:linear-gradient(90deg,var(--border),var(--border-2))}
+.kpi-orb{position:absolute;top:-16px;right:-16px;width:72px;height:72px;border-radius:50%;opacity:.06}
+.kv-lav .kpi-orb{background:var(--lav)}
+.kv-yel .kpi-orb{background:var(--yel)}
+.kv-grn .kpi-orb{background:var(--emerald)}
+.kv-red .kpi-orb{background:var(--red)}
+.kv-neu .kpi-orb{background:var(--muted)}
+.kpi-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;margin-bottom:12px}
+.kv-lav .kpi-icon{background:var(--lav-pale)}
+.kv-yel .kpi-icon{background:var(--yel-soft)}
+.kv-grn .kpi-icon{background:var(--emerald-bg)}
+.kv-red .kpi-icon{background:var(--red-bg)}
+.kv-neu .kpi-icon{background:var(--lav-ghost)}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-family:'Outfit',sans-serif;font-size:28px;font-weight:800;line-height:1;margin-bottom:5px;letter-spacing:-.5px;transition:color .3s}
+.kv-lav .kpi-value{color:var(--lav)}
+.kv-yel .kpi-value{color:var(--amber)}
+.kv-grn .kpi-value{color:var(--emerald)}
+.kv-red .kpi-value{color:var(--red)}
+.kv-neu .kpi-value{color:var(--ink)}
+.kpi-sub{font-size:11px;color:var(--faint)}
+
+/* SIM PANEL */
+.sim-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-2xl);padding:24px 26px;box-shadow:var(--sh-md);position:relative;overflow:hidden}
+.sim-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--lav) 0%,var(--lav-mid) 40%,var(--yel) 100%)}
+.sim-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.sim-title-grp{display:flex;align-items:center;gap:12px}
+.sim-title{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:var(--charcoal)}
+.sim-hint{font-size:12px;color:var(--faint)}
+.sliders-row{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:22px}
+.slider-card{background:var(--lav-ghost);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;transition:border-color .2s,box-shadow .2s}
+.slider-card:hover{border-color:var(--lav-soft);box-shadow:var(--sh-xs)}
+.slider-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.slider-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted)}
+.slider-hint{font-size:11px;color:var(--faint);margin-top:2px}
+.slider-display{text-align:right}
+.slider-num{font-family:'Outfit',sans-serif;font-size:26px;font-weight:800;color:var(--charcoal);letter-spacing:-.5px;line-height:1}
+.slider-unit{font-size:11px;color:var(--faint);text-align:right;margin-top:1px}
+input[type="range"]{-webkit-appearance:none;width:100%;height:5px;border-radius:10px;background:var(--border-2);outline:none;cursor:pointer}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--lav),var(--lav-mid));cursor:pointer;border:3px solid #fff;box-shadow:0 2px 8px rgba(131,102,240,.3);transition:transform .15s,box-shadow .15s}
+input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.15);box-shadow:0 2px 14px rgba(131,102,240,.45)}
+input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--lav),var(--lav-mid));cursor:pointer;border:3px solid #fff;box-shadow:0 2px 8px rgba(131,102,240,.3)}
+.slider-range-lbl{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--faint);font-weight:500}
+.insight-strip{background:linear-gradient(135deg,var(--charcoal) 0%,var(--ink) 100%);border-radius:var(--r-lg);padding:16px 20px;display:flex;align-items:center;gap:16px}
+.ins-emoji{font-size:28px;flex-shrink:0}
+.ins-body{flex:1}
+.ins-text{font-size:13px;color:rgba(255,255,255,.8);line-height:1.5}
+.ins-text strong{color:var(--yel-mid);font-weight:700}
+.ins-right{text-align:right;flex-shrink:0}
+.ins-big{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.3px;line-height:1}
+.ins-small{font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+
+/* GRIDS */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xl);padding:20px 22px;box-shadow:var(--sh-sm)}
+.panel-title{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--charcoal);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.panel-icon{width:28px;height:28px;background:var(--lav-ghost);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.panel-sub{font-size:12px;color:var(--faint);margin-bottom:18px}
+
+/* GAUGE */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;position:relative;padding:4px 0 8px}
+.gauge-svg-box{position:relative;width:180px;height:106px}
+.gauge-svg-box svg{width:100%;height:100%}
+.gauge-center{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);text-align:center;white-space:nowrap}
+.gauge-pct{font-family:'Outfit',sans-serif;font-size:30px;font-weight:800;letter-spacing:-1px;display:block;line-height:1;transition:color .4s}
+.gauge-pct-lbl{font-size:10px;color:var(--faint);font-weight:500;text-transform:uppercase;letter-spacing:.8px}
+.gauge-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:10px}
+.gauge-cell{background:var(--lav-ghost);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px}
+.gauge-cell-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);font-weight:600;margin-bottom:3px}
+.gauge-cell-val{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--charcoal)}
+
+/* TARGET */
+.target-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px}
+.target-current-net{font-family:'Outfit',sans-serif;font-size:36px;font-weight:800;letter-spacing:-1px;line-height:1;transition:color .3s}
+.target-lbl{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:4px}
+.target-goal-col{text-align:right}
+.target-goal-sub{font-size:11px;color:var(--faint)}
+.target-goal-val{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--charcoal)}
+.prog-track{background:var(--lav-ghost);border:1px solid var(--border);border-radius:var(--r-full);height:14px;overflow:hidden;position:relative;margin-bottom:6px}
+.prog-fill{height:100%;border-radius:var(--r-full);transition:width .5s cubic-bezier(.4,0,.2,1),background .3s;position:relative;overflow:hidden}
+.prog-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:sheen 2.5s ease-in-out infinite}
+@keyframes sheen{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.prog-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--faint);font-weight:500;margin-bottom:14px}
+.gap-row{background:var(--lav-ghost);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.gap-lbl{font-size:12px;font-weight:600;color:var(--muted)}
+.gap-val{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700}
+.sugg-box{background:linear-gradient(135deg,var(--yel-pale),var(--yel-ghost));border:1.5px solid var(--yel-soft);border-radius:var(--r-md);padding:12px 14px}
+.sugg-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--amber);margin-bottom:7px}
+.sugg-body{font-size:12px;color:var(--ink);line-height:1.8}
+.sugg-body strong{color:var(--lav);font-weight:700}
+
+/* REVERSE */
+.rev-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xl);padding:22px 24px;box-shadow:var(--sh-sm);position:relative;overflow:hidden}
+.rev-panel::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--yel),var(--yel-mid))}
+.rev-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;padding-left:10px}
+.rev-title{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--charcoal);margin-bottom:2px}
+.rev-sub{font-size:12px;color:var(--faint)}
+.rev-badge{background:var(--yel-soft);color:var(--amber);font-size:11px;font-weight:700;padding:4px 12px;border-radius:var(--r-full);border:1px solid var(--yel-mid);white-space:nowrap}
+.rev-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-left:10px}
+.rev-card{background:var(--lav-ghost);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;text-align:center;transition:border-color .2s,transform .2s}
+.rev-card:hover{border-color:var(--lav-soft);transform:translateY(-2px)}
+.rev-card-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--faint);font-weight:600;margin-bottom:8px}
+.rev-card-val{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;color:var(--lav);display:block;letter-spacing:-.5px;margin-bottom:4px}
+.rev-card-sub{font-size:10px;color:var(--faint);margin-bottom:8px}
+.rev-diff{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:var(--r-full)}
+.diff-up{background:var(--red-bg);color:var(--red)}
+.diff-ok{background:var(--emerald-bg);color:var(--emerald)}
+
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.chart-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xl);padding:18px 20px;box-shadow:var(--sh-sm)}
+.chart-panel canvas{max-height:190px}
+.chart-title{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--charcoal);margin-bottom:2px}
+.chart-sub{font-size:11px;color:var(--faint);margin-bottom:14px}
+
+/* ANSWERS */
+.answers-panel{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xl);padding:22px 24px;box-shadow:var(--sh-sm)}
+.answers-title{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--charcoal);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.answers-badge{background:linear-gradient(135deg,var(--lav-pale),var(--lav-ghost));color:var(--lav);font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--r-full);border:1px solid var(--border-2)}
+.answers-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answer-card{background:var(--lav-ghost);border:1.5px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;transition:border-color .2s}
+.answer-card:hover{border-color:var(--lav-soft)}
+.ans-q{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--lav);margin-bottom:7px}
+.ans-a{font-size:13px;color:var(--ink);line-height:1.5}
+.ans-a strong{color:var(--charcoal);font-weight:700}
+
+/* SPACING */
+.mb-14{margin-bottom:14px}.mb-20{margin-bottom:20px}.mb-24{margin-bottom:24px}.mb-28{margin-bottom:28px}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes numPop{0%{transform:scale(1)}40%{transform:scale(1.04)}100%{transform:scale(1)}}
+.a1{animation:fadeUp .4s ease .05s both}.a2{animation:fadeUp .4s ease .12s both}
+.a3{animation:fadeUp .4s ease .19s both}.a4{animation:fadeUp .4s ease .26s both}
+.a5{animation:fadeUp .4s ease .33s both}
+.num-pop{animation:numPop .3s cubic-bezier(.34,1.56,.64,1)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.app-layout{grid-template-columns:260px 1fr}.kpi-row{grid-template-columns:repeat(2,1fr)}.rev-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:860px){.app-layout{grid-template-columns:1fr}.sidebar{position:static;height:auto}.sliders-row{grid-template-columns:1fr}.two-col,.charts-grid,.answers-grid{grid-template-columns:1fr}.rev-grid{grid-template-columns:repeat(2,1fr)}.kpi-row{grid-template-columns:repeat(2,1fr)}.main-area{padding:16px 18px 40px}}
+@media(max-width:480px){.topbar{padding:0 16px}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-orb">Z</div>
+    <div>
+      <div class="brand-text">Zinkywee</div>
+      <div class="brand-sub">Retail Growth Engine</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="live-pill"><div class="live-dot"></div>Live Simulation</div>
+    <div class="sim-badge">Simulator Mode</div>
+  </div>
+</header>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-heading"><div class="sb-icon">🏠</div>Fixed Costs</div>
+      <div class="inp-group">
+        <div class="inp-label">Monthly Rent</div>
+        <div class="inp-wrap"><span class="inp-pre">₹</span><input type="number" id="i_rent" value="15000" min="0"></div>
+      </div>
+      <div class="inp-group">
+        <div class="inp-label">Electricity</div>
+        <div class="inp-wrap"><span class="inp-pre">₹</span><input type="number" id="i_elec" value="3000" min="0"></div>
+      </div>
+      <div class="inp-group">
+        <div class="inp-label">Staff Salary</div>
+        <div class="inp-wrap"><span class="inp-pre">₹</span><input type="number" id="i_staff" value="12000" min="0"></div>
+      </div>
+      <div class="inp-group">
+        <div class="inp-label">Misc Expenses</div>
+        <div class="inp-wrap"><span class="inp-pre">₹</span><input type="number" id="i_misc" value="3000" min="0"></div>
+      </div>
+      <div class="total-chip">
+        <span class="total-chip-lbl">Total Fixed / mo</span>
+        <span class="total-chip-val" id="d_totalfixed">₹33,000</span>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-heading"><div class="sb-icon">⚙️</div>Business Model</div>
+      <div class="inp-group">
+        <div class="inp-label">Gross Margin %</div>
+        <div class="inp-wrap no-pre">
+          <input type="number" id="i_margin" value="50" min="1" max="99" style="padding-left:11px">
+          <span class="inp-suf">%</span>
+        </div>
+      </div>
+      <div class="inp-group">
+        <div class="inp-label">Working Days / Month</div>
+        <div class="inp-wrap no-pre">
+          <input type="number" id="i_days" value="26" min="1" max="31" style="padding-left:11px">
+          <span class="inp-suf">days</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-heading"><div class="sb-icon">🎯</div>Profit Target</div>
+      <div class="inp-group">
+        <div class="inp-label">Target Net Profit / Month</div>
+        <div class="inp-wrap"><span class="inp-pre">₹</span><input type="number" id="i_target" value="40000" min="0"></div>
+      </div>
+      <div class="target-chip">
+        <div class="target-chip-lbl">Revenue Needed</div>
+        <div class="target-chip-val" id="d_target_rev">₹1,46,000</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-area">
+
+    <div class="section-head">Performance Snapshot</div>
+    <div class="kpi-row mb-24">
+      <div class="kpi-card kv-lav a1">
+        <div class="kpi-orb"></div>
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-label">Monthly Revenue</div>
+        <div class="kpi-value" id="d_revenue">₹41,600</div>
+        <div class="kpi-sub" id="d_rev_sub">4 buyers · ₹400 AOV</div>
+      </div>
+      <div class="kpi-card kv-yel a2">
+        <div class="kpi-orb"></div>
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-label">Gross Profit</div>
+        <div class="kpi-value" id="d_gross">₹20,800</div>
+        <div class="kpi-sub" id="d_gross_sub">50% margin applied</div>
+      </div>
+      <div class="kpi-card kv-red a3" id="kpi_net_card">
+        <div class="kpi-orb"></div>
+        <div class="kpi-icon" id="kpi_net_icon">📉</div>
+        <div class="kpi-label">Net Profit</div>
+        <div class="kpi-value" id="d_net">–₹12,200</div>
+        <div class="kpi-sub" id="d_net_sub">After fixed costs</div>
+      </div>
+      <div class="kpi-card kv-neu a4">
+        <div class="kpi-orb"></div>
+        <div class="kpi-icon">⚖️</div>
+        <div class="kpi-label">Break-Even Revenue</div>
+        <div class="kpi-value" id="d_be">₹66,000</div>
+        <div class="kpi-sub" id="d_be_sub">₹2,538/day needed</div>
+      </div>
+    </div>
+
+    <div class="section-head">Simulation Controls</div>
+    <div class="sim-panel mb-24 a2">
+      <div class="sim-header">
+        <div class="sim-title-grp">
+          <div class="sim-title">🎛️ Interactive Simulator</div>
+          <div class="live-pill" style="background:rgba(131,102,240,.1);border-color:rgba(131,102,240,.25);color:var(--lav)">
+            <div class="live-dot" style="background:var(--lav)"></div>
+            Drag sliders
+          </div>
+        </div>
+        <div class="sim-hint">All numbers update instantly</div>
+      </div>
+
+      <div class="sliders-row">
+        <div class="slider-card">
+          <div class="slider-top">
+            <div><div class="slider-name">Daily Footfall</div><div class="slider-hint">visitors entering</div></div>
+            <div class="slider-display"><div class="slider-num" id="sv_footfall">6</div><div class="slider-unit">people / day</div></div>
+          </div>
+          <input type="range" id="s_footfall" min="1" max="30" value="6">
+          <div class="slider-range-lbl"><span>1</span><span>30</span></div>
+        </div>
+        <div class="slider-card">
+          <div class="slider-top">
+            <div><div class="slider-name">Conversion Rate</div><div class="slider-hint">% who buy</div></div>
+            <div class="slider-display"><div class="slider-num" id="sv_conv">67</div><div class="slider-unit">percent</div></div>
+          </div>
+          <input type="range" id="s_conv" min="10" max="100" value="67">
+          <div class="slider-range-lbl"><span>10%</span><span>100%</span></div>
+        </div>
+        <div class="slider-card">
+          <div class="slider-top">
+            <div><div class="slider-name">Avg Order Value</div><div class="slider-hint">₹ per transaction</div></div>
+            <div class="slider-display"><div class="slider-num" id="sv_aov">400</div><div class="slider-unit">rupees / sale</div></div>
+          </div>
+          <input type="range" id="s_aov" min="100" max="2000" step="50" value="400">
+          <div class="slider-range-lbl"><span>₹100</span><span>₹2000</span></div>
+        </div>
+      </div>
+
+      <div class="insight-strip">
+        <div class="ins-emoji" id="ins_emoji">⚠️</div>
+        <div class="ins-body">
+          <div class="ins-text" id="ins_text">Need <strong>3 more buyers/day</strong> or raise AOV by <strong>₹250</strong> to break even.</div>
+        </div>
+        <div class="ins-right">
+          <div class="ins-big" id="ins_big">–₹12,200</div>
+          <div class="ins-small" id="ins_small">gap to break-even</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">Break-Even &amp; Target Tracker</div>
+    <div class="two-col mb-24">
+
+      <div class="panel a3">
+        <div class="panel-title"><div class="panel-icon">⚖️</div>Break-Even Gauge</div>
+        <div class="panel-sub">Current revenue vs. minimum to survive</div>
+        <div class="gauge-wrap">
+          <div class="gauge-svg-box">
+            <svg viewBox="0 0 180 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="gT" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#E84F4F" stop-opacity=".25"/>
+                  <stop offset="50%" stop-color="#E8B929" stop-opacity=".25"/>
+                  <stop offset="100%" stop-color="#10A366" stop-opacity=".25"/>
+                </linearGradient>
+                <linearGradient id="gF" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#E84F4F"/>
+                  <stop offset="50%" stop-color="#E8B929"/>
+                  <stop offset="100%" stop-color="#10A366"/>
+                </linearGradient>
+              </defs>
+              <path d="M16 94 A74 74 0 0 1 164 94" stroke="url(#gT)" stroke-width="12" stroke-linecap="round"/>
+              <path id="g_fill" d="M16 94 A74 74 0 0 1 164 94" stroke="url(#gF)" stroke-width="12" stroke-linecap="round" stroke-dasharray="232" stroke-dashoffset="139"/>
+              <circle cx="90" cy="94" r="7" fill="#1C1830"/>
+              <circle cx="90" cy="94" r="3.5" fill="white"/>
+              <g id="g_needle" transform="rotate(-90 90 94)">
+                <line x1="90" y1="94" x2="90" y2="30" stroke="#1C1830" stroke-width="2.5" stroke-linecap="round"/>
+              </g>
+            </svg>
+            <div class="gauge-center">
+              <span class="gauge-pct" id="g_pct" style="color:var(--red)">63%</span>
+              <span class="gauge-pct-lbl">of break-even</span>
+            </div>
+          </div>
+        </div>
+        <div class="gauge-grid">
+          <div class="gauge-cell"><div class="gauge-cell-lbl">Break-Even Rev</div><div class="gauge-cell-val" id="g_be_rev">₹66,000</div></div>
+          <div class="gauge-cell"><div class="gauge-cell-lbl">Daily Target</div><div class="gauge-cell-val" id="g_daily">₹2,538</div></div>
+          <div class="gauge-cell"><div class="gauge-cell-lbl">Current Revenue</div><div class="gauge-cell-val" id="g_curr">₹41,600</div></div>
+          <div class="gauge-cell"><div class="gauge-cell-lbl">Gap to BE</div><div class="gauge-cell-val" id="g_gap" style="color:var(--red)">–₹24,400</div></div>
+        </div>
+      </div>
+
+      <div class="panel a4">
+        <div class="panel-title"><div class="panel-icon">🎯</div>Target Progress</div>
+        <div class="panel-sub">Journey to your monthly profit goal</div>
+        <div class="target-top">
+          <div>
+            <div class="target-lbl">Current Net Profit</div>
+            <div class="target-current-net" id="tp_net" style="color:var(--red)">–₹12,200</div>
+          </div>
+          <div class="target-goal-col">
+            <div class="target-goal-sub">Your goal</div>
+            <div class="target-goal-val" id="tp_goal">₹40,000</div>
+          </div>
+        </div>
+        <div class="prog-track mb-6" style="margin-bottom:6px">
+          <div class="prog-fill" id="prog_fill" style="width:0%;background:linear-gradient(90deg,var(--red),#F09090)"></div>
+        </div>
+        <div class="prog-labels">
+          <span>₹0 break-even</span>
+          <span id="tp_goal_lbl">₹40,000 goal</span>
+        </div>
+        <div class="gap-row">
+          <span class="gap-lbl">Distance to Target</span>
+          <span class="gap-val" id="tp_gap" style="color:var(--red)">₹52,200 to go</span>
+        </div>
+        <div class="sugg-box">
+          <div class="sugg-title">⚡ How to reach it</div>
+          <div class="sugg-body" id="tp_sugg">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">Reverse Target Engine</div>
+    <div class="rev-panel mb-24 a3">
+      <div class="rev-header">
+        <div>
+          <div class="rev-title">🔁 What You Actually Need</div>
+          <div class="rev-sub">Exact metrics required to hit your profit target — from any angle</div>
+        </div>
+        <div class="rev-badge">Target-Backed</div>
+      </div>
+      <div class="rev-grid">
+        <div class="rev-card">
+          <div class="rev-card-lbl">Revenue Required</div>
+          <span class="rev-card-val" id="r_rev">₹1,46,000</span>
+          <div class="rev-card-sub">per month</div>
+          <span class="rev-diff diff-up" id="r_rev_diff">+₹1,04,400</span>
+        </div>
+        <div class="rev-card">
+          <div class="rev-card-lbl">Buyers / Day</div>
+          <span class="rev-card-val" id="r_buyers">14</span>
+          <div class="rev-card-sub">at current AOV</div>
+          <span class="rev-diff diff-up" id="r_buyers_diff">+10 more</span>
+        </div>
+        <div class="rev-card">
+          <div class="rev-card-lbl">AOV Required</div>
+          <span class="rev-card-val" id="r_aov">₹1,404</span>
+          <div class="rev-card-sub">at current buyers</div>
+          <span class="rev-diff diff-up" id="r_aov_diff">+₹1,004</span>
+        </div>
+        <div class="rev-card">
+          <div class="rev-card-lbl">Footfall Required</div>
+          <span class="rev-card-val" id="r_footfall">21</span>
+          <div class="rev-card-sub">at current conversion</div>
+          <span class="rev-diff diff-up" id="r_footfall_diff">+15 more</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">Visual Analytics</div>
+    <div class="charts-grid mb-24">
+      <div class="chart-panel a2">
+        <div class="chart-title">Footfall → Revenue</div>
+        <div class="chart-sub">How daily visitors translate to monthly revenue</div>
+        <canvas id="c_footfall"></canvas>
+      </div>
+      <div class="chart-panel a3">
+        <div class="chart-title">AOV → Net Profit Sensitivity</div>
+        <div class="chart-sub">Impact of raising average order value</div>
+        <canvas id="c_aov"></canvas>
+      </div>
+      <div class="chart-panel a4">
+        <div class="chart-title">Revenue vs Fixed Cost</div>
+        <div class="chart-sub">Your core financials at a glance</div>
+        <canvas id="c_bar"></canvas>
+      </div>
+      <div class="chart-panel a5">
+        <div class="chart-title">Conversion Rate Impact</div>
+        <div class="chart-sub">Same footfall, different sell-through</div>
+        <canvas id="c_conv"></canvas>
+      </div>
+    </div>
+
+    <div class="section-head">30-Second Clarity</div>
+    <div class="answers-panel a3">
+      <div class="answers-title">
+        ⚡ Instant Answers
+        <span class="answers-badge">Live Calculated</span>
+      </div>
+      <div class="answers-grid">
+        <div class="answer-card"><div class="ans-q">Why am I stuck at ₹50k?</div><div class="ans-a" id="ans_1">Loading…</div></div>
+        <div class="answer-card"><div class="ans-q">What exact number must change?</div><div class="ans-a" id="ans_2">Loading…</div></div>
+        <div class="answer-card"><div class="ans-q">AOV or Footfall — which is stronger?</div><div class="ans-a" id="ans_3">Loading…</div></div>
+        <div class="answer-card"><div class="ans-q">What gets me to my target?</div><div class="ans-a" id="ans_4">Loading…</div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* FORMAT */
+const fmt = (n, sign=false) => {
+  const abs = Math.abs(Math.round(n));
+  const s = abs.toLocaleString('en-IN');
+  const neg = n < 0 ? '–' : (sign && n > 0 ? '+' : '');
+  return neg + '₹' + s;
+};
+
+/* ANIMATED COUNTER */
+const animState = {};
+function animNum(id, to, isRup=true) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (animState[id]) cancelAnimationFrame(animState[id]);
+  const from = parseFloat(el.dataset.raw || '0');
+  const dur = 380, t0 = performance.now();
+  function tick(now) {
+    const p = Math.min((now - t0) / dur, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    const v = from + (to - from) * e;
+    el.textContent = isRup ? fmt(v) : Math.round(v).toString();
+    if (p < 1) {
+      animState[id] = requestAnimationFrame(tick);
+    } else {
+      el.dataset.raw = to;
+      el.textContent = isRup ? fmt(to) : Math.round(to).toString();
+    }
+  }
+  animState[id] = requestAnimationFrame(tick);
+}
+
+function setText(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
+function setHtml(id, h) { const e = document.getElementById(id); if (e) e.innerHTML = h; }
+
+/* CHARTS */
+let cFt, cAov, cBar, cConv;
+
+function initCharts() {
+  Chart.defaults.font.family = 'DM Sans';
+  const base = {
+    responsive: true, maintainAspectRatio: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1C1830', titleColor: '#C4B0FA', bodyColor: '#AEA9CC',
+        padding: 10, cornerRadius: 10,
+        titleFont: { family: 'Outfit', weight: '600', size: 12 },
+        bodyFont: { family: 'DM Sans', size: 12 },
+        callbacks: { label: ctx => '  ' + fmt(ctx.raw) }
+      }
+    },
+    scales: {
+      x: { grid: { color: '#EDE8FD' }, ticks: { font: { family: 'Outfit', size: 10, weight: '600' }, color: '#AEA9CC' }, border: { display: false } },
+      y: { grid: { color: '#EDE8FD' }, ticks: { font: { family: 'Outfit', size: 10, weight: '600' }, color: '#AEA9CC', callback: v => v >= 1e5 ? '₹'+(v/1e5).toFixed(1)+'L' : v >= 1000 ? '₹'+(v/1000).toFixed(0)+'k' : '₹'+v }, border: { display: false } }
+    }
+  };
+  const bc = () => JSON.parse(JSON.stringify(base));
+
+  const mkGrad = (ctx, c1, c2) => {
+    const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 200);
+    g.addColorStop(0, c1); g.addColorStop(1, c2); return g;
+  };
+
+  cFt = new Chart(document.getElementById('c_footfall'), {
+    type: 'line', data: { labels: [], datasets: [
+      { data: [], borderColor: '#8366F0', backgroundColor: ctx => mkGrad(ctx, 'rgba(131,102,240,.18)', 'rgba(131,102,240,0)'), fill: true, tension: .45, borderWidth: 2.5, pointRadius: 2.5, pointBackgroundColor: '#8366F0' },
+      { data: [], borderColor: '#E8B929', borderWidth: 1.5, borderDash: [6,4], fill: false, pointRadius: 0, tension: 0 }
+    ]}, options: bc()
+  });
+
+  cAov = new Chart(document.getElementById('c_aov'), {
+    type: 'line', data: { labels: [], datasets: [{
+      data: [], borderColor: '#10A366',
+      backgroundColor: ctx => mkGrad(ctx, 'rgba(16,163,102,.18)', 'rgba(16,163,102,0)'),
+      fill: true, tension: .45, borderWidth: 2.5, pointRadius: 0,
+      segment: { borderColor: ctx => ctx.p0.parsed.y < 0 && ctx.p1.parsed.y < 0 ? '#E84F4F' : '#10A366' }
+    }]}, options: bc()
+  });
+
+  const barOpts = bc();
+  barOpts.scales.x.grid = { display: false };
+  cBar = new Chart(document.getElementById('c_bar'), {
+    type: 'bar', data: {
+      labels: ['Fixed Cost', 'Revenue', 'Gross Profit', 'Net Profit'],
+      datasets: [{ data: [0,0,0,0],
+        backgroundColor: ['rgba(174,169,204,.3)','rgba(131,102,240,.3)','rgba(232,185,41,.35)','rgba(16,163,102,.4)'],
+        borderColor: ['#AEA9CC','#8366F0','#E8B929','#10A366'],
+        borderWidth: 1.5, borderRadius: 8
+      }]
+    }, options: barOpts
+  });
+
+  cConv = new Chart(document.getElementById('c_conv'), {
+    type: 'line', data: { labels: [], datasets: [{
+      data: [], borderColor: '#E8B929',
+      backgroundColor: ctx => mkGrad(ctx, 'rgba(232,185,41,.18)', 'rgba(232,185,41,0)'),
+      fill: true, tension: .45, borderWidth: 2.5, pointRadius: 0,
+      segment: { borderColor: ctx => ctx.p0.parsed.y < 0 && ctx.p1.parsed.y < 0 ? '#E84F4F' : '#E8B929' }
+    }]}, options: bc()
+  });
+}
+
+/* MAIN CALC */
+function calc() {
+  const rent   = +document.getElementById('i_rent').value  || 0;
+  const elec   = +document.getElementById('i_elec').value  || 0;
+  const staff  = +document.getElementById('i_staff').value || 0;
+  const misc   = +document.getElementById('i_misc').value  || 0;
+  const margin = (+document.getElementById('i_margin').value || 50) / 100;
+  const days   = +document.getElementById('i_days').value  || 26;
+  const target = +document.getElementById('i_target').value || 40000;
+  const ft     = +document.getElementById('s_footfall').value;
+  const convPct= +document.getElementById('s_conv').value;
+  const conv   = convPct / 100;
+  const aov    = +document.getElementById('s_aov').value;
+
+  const fixed    = rent + elec + staff + misc;
+  const buyers   = ft * conv;
+  const revenue  = buyers * aov * days;
+  const gross    = revenue * margin;
+  const net      = gross - fixed;
+  const be_rev   = fixed / margin;
+  const be_daily = be_rev / days;
+
+  const req_rev  = (target + fixed) / margin;
+  const req_buy  = req_rev / (aov * days);
+  const req_aov  = buyers > 0 ? req_rev / (buyers * days) : 0;
+  const req_ft   = conv > 0 ? req_buy / conv : 0;
+
+  /* Sidebar */
+  setText('d_totalfixed', fmt(fixed));
+  setText('d_target_rev', fmt(req_rev));
+
+  /* KPIs */
+  animNum('d_revenue', revenue);
+  setText('d_rev_sub', Math.round(buyers) + ' buyers · ' + fmt(aov) + ' AOV');
+  animNum('d_gross', gross);
+  setText('d_gross_sub', Math.round(margin*100) + '% margin applied');
+  animNum('d_net', net);
+  setText('d_net_sub', 'After ' + fmt(fixed) + ' fixed');
+
+  const nc = document.getElementById('kpi_net_card');
+  nc.className = 'kpi-card a3 ' + (net >= 0 ? 'kv-grn' : 'kv-red');
+  document.getElementById('kpi_net_icon').textContent = net >= 0 ? '📈' : '📉';
+  animNum('d_be', be_rev);
+  setText('d_be_sub', fmt(be_daily) + '/day needed');
+
+  /* Gauge */
+  const bePct = Math.min(Math.max(revenue / be_rev, 0), 1.5);
+  const gPct  = document.getElementById('g_pct');
+  gPct.textContent = Math.round(bePct * 100) + '%';
+  gPct.style.color = bePct >= 1 ? 'var(--emerald)' : bePct >= .75 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('g_fill').style.strokeDashoffset = 232 - Math.min(bePct/1.5, 1) * 232;
+  document.getElementById('g_needle').setAttribute('transform', `rotate(${-90 + (bePct/1.5)*180} 90 94)`);
+  setText('g_be_rev', fmt(be_rev));
+  setText('g_daily',  fmt(be_daily));
+  setText('g_curr',   fmt(revenue));
+  const gapBe = revenue - be_rev;
+  const gGap  = document.getElementById('g_gap');
+  gGap.textContent = gapBe >= 0 ? '+' + fmt(gapBe) : fmt(gapBe);
+  gGap.style.color  = gapBe >= 0 ? 'var(--emerald)' : 'var(--red)';
+
+  /* Target progress */
+  const tpEl = document.getElementById('tp_net');
+  animNum('tp_net', net);
+  tpEl.style.color = net >= target ? 'var(--emerald)' : net >= 0 ? 'var(--amber)' : 'var(--red)';
+  setText('tp_goal', fmt(target));
+  setText('tp_goal_lbl', fmt(target) + ' goal');
+
+  const pct = net <= 0 ? 0 : Math.min(net / target, 1);
+  const pf  = document.getElementById('prog_fill');
+  pf.style.width = Math.max(pct * 100, 0) + '%';
+  pf.style.background = net < 0 ? 'linear-gradient(90deg,var(--red),#F09090)' :
+    pct < .5 ? 'linear-gradient(90deg,var(--amber),var(--yel-mid))' :
+    pct < 1  ? 'linear-gradient(90deg,var(--lav),var(--lav-mid))' :
+               'linear-gradient(90deg,var(--emerald),#6EDDA8)';
+
+  const gapTgt = target - net;
+  const tGap   = document.getElementById('tp_gap');
+  tGap.textContent = gapTgt <= 0 ? '🎉 Target hit! +' + fmt(-gapTgt) + ' over' : fmt(gapTgt) + ' to go';
+  tGap.style.color  = gapTgt <= 0 ? 'var(--emerald)' : 'var(--red)';
+
+  if (net >= target) {
+    setHtml('tp_sugg', '<span style="color:var(--emerald);font-weight:700;">🏆 Target achieved! Consider raising it.</span>');
+  } else {
+    setHtml('tp_sugg',
+      `→ Raise AOV to <strong>${fmt(Math.round(req_aov))}</strong> (same buyers)<br>` +
+      `→ Or get <strong>${Math.round(req_buy)} buyers/day</strong> (current AOV)<br>` +
+      `→ Or <strong>${Math.round(req_ft)} visitors/day</strong> (current conversion)`
+    );
+  }
+
+  /* Reverse engine */
+  const setRev = (id, diffId, val, diff, isRup=true) => {
+    setText(id, isRup ? fmt(Math.round(val)) : Math.round(val).toString());
+    const el = document.getElementById(diffId);
+    if (diff > 0) {
+      el.textContent = isRup ? '+' + fmt(diff) : '+' + Math.round(diff) + ' more';
+      el.className = 'rev-diff diff-up';
+    } else {
+      el.textContent = '✓ Achieved';
+      el.className = 'rev-diff diff-ok';
+    }
+  };
+  setRev('r_rev', 'r_rev_diff', req_rev, req_rev - revenue, true);
+  setRev('r_buyers', 'r_buyers_diff', req_buy, req_buy - buyers, false);
+  setRev('r_aov', 'r_aov_diff', req_aov, req_aov - aov, true);
+  setRev('r_footfall', 'r_footfall_diff', req_ft, req_ft - ft, false);
+
+  /* Insight strip */
+  const iE = document.getElementById('ins_emoji');
+  const iT = document.getElementById('ins_text');
+  const iB = document.getElementById('ins_big');
+  const iS = document.getElementById('ins_small');
+  if (net >= target) {
+    iE.textContent = '🏆';
+    iT.innerHTML = `Net of <strong>${fmt(net)}</strong> exceeds target by <strong>${fmt(net-target)}</strong>. Excellent performance!`;
+    iB.textContent = '+' + fmt(net - target);
+    iS.textContent = 'above target';
+  } else if (net >= 0) {
+    const nb = Math.ceil(req_buy - buyers);
+    iE.textContent = '📈';
+    iT.innerHTML = `Profitable! <strong>${nb} more buyer${nb!==1?'s':''}/day</strong> or AOV → <strong>${fmt(Math.round(req_aov))}</strong> reaches ₹${(target/1000).toFixed(0)}k goal.`;
+    iB.textContent = fmt(gapTgt);
+    iS.textContent = 'gap to target';
+  } else {
+    const xb = Math.ceil((be_rev - revenue) / (aov * days));
+    const xa = Math.ceil(be_rev / (buyers > 0 ? buyers * days : 1) - aov);
+    iE.textContent = '⚠️';
+    iT.innerHTML = `<strong>${xb} more buyer${xb!==1?'s':''}/day</strong> or raise AOV by <strong>${fmt(xa)}</strong> just to break even.`;
+    iB.textContent = fmt(revenue - be_rev);
+    iS.textContent = 'gap to break-even';
+  }
+
+  /* 30-sec answers */
+  const a100 = buyers * days * margin * 100;
+  const f1   = conv * aov * days * margin;
+  setHtml('ans_1', `Revenue of <strong>${fmt(revenue)}</strong> is ${Math.round(revenue/be_rev*100)}% of break-even. You need <strong>${fmt(be_rev)}</strong> to cover your <strong>${fmt(fixed)}</strong> in fixed costs.`);
+  setHtml('ans_2', net < 0
+    ? `Raise AOV from <strong>${fmt(aov)}</strong> → <strong>${fmt(Math.round(req_aov))}</strong>. That single change breaks even and beyond.`
+    : `You're profitable! Push AOV to <strong>${fmt(Math.round(req_aov))}</strong> or footfall to <strong>${Math.round(req_ft)}/day</strong> to hit target.`
+  );
+  setHtml('ans_3', `<strong>${a100 > f1 ? 'AOV' : 'Footfall'} is more powerful</strong> right now. ₹100 AOV bump = +${fmt(a100)} net/month. Each extra visitor = +${fmt(f1)} net/month.`);
+  setHtml('ans_4', `Need <strong>${fmt(req_rev)}</strong>/month — that means <strong>${Math.round(req_buy)} buyers/day</strong> at ₹${aov} AOV, or <strong>${Math.round(req_ft)} visitors/day</strong> at ${convPct}% conversion.`);
+
+  /* Charts */
+  const ftL=[],ftR=[],ftBe=[];
+  for(let f=1;f<=30;f++){ftL.push(f);ftR.push(Math.round(f*conv*aov*days));ftBe.push(Math.round(be_rev));}
+  cFt.data.labels=ftL; cFt.data.datasets[0].data=ftR; cFt.data.datasets[1].data=ftBe; cFt.update('none');
+
+  const aL=[],aN=[];
+  for(let a=100;a<=2000;a+=50){aL.push('₹'+a);aN.push(Math.round(buyers*a*days*margin-fixed));}
+  cAov.data.labels=aL; cAov.data.datasets[0].data=aN; cAov.update('none');
+
+  cBar.data.datasets[0].data=[Math.round(fixed),Math.round(revenue),Math.round(gross),Math.round(net)];
+  cBar.data.datasets[0].backgroundColor=['rgba(174,169,204,.35)','rgba(131,102,240,.35)','rgba(232,185,41,.45)', net>=0?'rgba(16,163,102,.5)':'rgba(232,79,79,.45)'];
+  cBar.data.datasets[0].borderColor=['#AEA9CC','#8366F0','#E8B929',net>=0?'#10A366':'#E84F4F'];
+  cBar.update('none');
+
+  const cL=[],cN=[];
+  for(let c=10;c<=100;c+=5){cL.push(c+'%');cN.push(Math.round(ft*(c/100)*aov*days*margin-fixed));}
+  cConv.data.labels=cL; cConv.data.datasets[0].data=cN; cConv.update('none');
+}
+
+/* SLIDER SYNC */
+function syncSlider(name) {
+  const el  = document.getElementById('s_' + name);
+  const val = el.value;
+  setText('sv_' + name, val);
+  const pct = ((+val - +el.min) / (+el.max - +el.min)) * 100;
+  el.style.background = `linear-gradient(90deg, var(--lav) ${pct}%, var(--border-2) ${pct}%)`;
+  calc();
+}
+
+/* INIT */
+document.addEventListener('DOMContentLoaded', () => {
+  initCharts();
+  ['footfall','conv','aov'].forEach(n => {
+    document.getElementById('s_'+n).addEventListener('input', () => syncSlider(n));
+  });
+  document.querySelectorAll('input[type="number"]').forEach(e => e.addEventListener('input', calc));
+  ['footfall','conv','aov'].forEach(n => syncSlider(n));
+  calc();
+});
+</script>
+</body>
+</html>
